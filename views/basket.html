@@ -1,0 +1,149 @@
+<html>
+    <head>
+        <title>我的购物篮</title>
+        <style>
+            .cls_item_box{
+                width: 100%;
+                height: 100px;
+                border: 2px dashed;
+                color: antiquewhite;
+                position: relative;
+            }
+            .cls_del_item{
+                position: absolute;
+                right: 0%;
+            }
+            .cls_item_name{
+                font-family: "Consolas";
+                font-size: 20px;
+                color: black;
+            }
+            .cls_item_detail{
+                color: black;
+            }
+            .cls_item_price{
+                font-family: "Consolas";
+                font-size: 20px;
+                color: black;
+                position: absolute;
+                bottom: 0px;
+            }
+            .cls_headbar{
+                font-size: 20px;
+                background-color:antiquewhite;
+            }
+        </style>
+        <script src="http://127.0.0.1/md5.js"></script>
+    </head>
+    <body>
+        <div id="headbar" class="cls_headbar"></div>
+        <hr>
+        <div id="tb_items"></div>
+        <script>
+            function send2server(args,c){
+                if(!c){
+                    c="admin";
+                }
+                var reqClass=new XMLHttpRequest();
+                reqClass.open("POST","http://127.0.0.1/index.php/"+c,false);
+                reqClass.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                reqClass.send(args);
+            //    alert(reqClass.responseText);
+                return JSON.parse(reqClass.responseText);
+            }
+            function getItems(){
+                //alert(localStorage.user);
+                items=send2server("command=getitems&user="+localStorage.user+
+                                    "&passwd="+localStorage.passwd,"basket");
+            }
+            function showItems(){
+                var tb_items=document.getElementById("tb_items");
+                while(tb_items.firstChild){
+                    tb_items.removeChild(tb_items.firstChild);
+                }
+                for(var i=0;i<5;++i){
+                    if(page*5+i>items.length-1){
+                        break;
+                    }
+                    var item=document.createElement("div");
+                    var item_id=document.createElement("span");
+                    var item_name=document.createElement("span");
+                    var item_detail=document.createElement("span");
+                    var item_price=document.createElement("span");
+                    //alert(items.length-1);
+                //    item_name.appendChild(document.createTextNode(items[page*5+i].name));
+                //    item_detail.appendChild(document.createTextNode(items[page*5+i].detail));
+                //    item_price.appendChild(document.createTextNode(items[page*5+i].price));
+                    item_name.innerText=items[page*5+i].name;
+                    item_detail.innerText=items[page*5+i].detail;
+                    item_price.innerText=items[page*5+i].price+"￥";
+                    item_name.className="cls_item_name";
+                    item_detail.className="cls_item_detail";
+                    item_price.className="cls_item_price";
+                    item_id.value=items[page*5+i].id;
+                    item_id.name="id";
+                    item_name.name="name";
+                    item_detail.name="detail";
+                    item_price.name="price";
+
+                    var del_item=document.createElement("a");
+                    del_item.href=" ";
+                    del_item.innerText="删除";
+                    del_item.className="cls_del_item";
+                    del_item.addEventListener("click",function(e){
+                        e.preventDefault();
+                        var p=e.target.parentNode;
+                    //    alert(p.firstChild.innerText);
+                    //    alert(p.firstChild.innerText);
+                        send2server("command=delitem&user="+localStorage.user+"&passwd="+localStorage.passwd+
+                                        "&id="+p.firstChild.value,"basket");
+                        page=0;
+                        getItems();
+                        showItems();
+                    });
+                    item.appendChild(item_id);
+                    item.appendChild(item_name);
+                    item.appendChild(del_item);
+                    item.appendChild(document.createElement("br"));
+                    item.appendChild(item_detail);
+                    item.appendChild(document.createElement("br"));
+                    item.appendChild(item_price);
+
+                    item.className="cls_item_box";
+                    tb_items.appendChild(item);
+                }
+                if(page!=0){
+                    var prepage=document.createElement("input");
+                    prepage.type="button";
+                    prepage.value="Prev";
+                    prepage.addEventListener("click",function(){
+                        --page;
+                        var tb_items=document.getElementById("tb_items");
+                        while(tb_items.firstChild){
+                            tb_items.removeChild(tb_items.firstChild);
+                        }
+                        showItems();
+                    });
+                    tb_items.appendChild(prepage);
+                }
+                if((page+1)*5<=items.length-1){
+                    var nextpage=document.createElement("input");
+                    nextpage.type="button";
+                    nextpage.value="Next";
+                    nextpage.addEventListener("click",function(){
+                        ++page;
+                        showItems();
+                    });
+                    tb_items.appendChild(nextpage);
+                }
+            }
+            //******************************************
+            var headbar=document.getElementById("headbar");
+            headbar.innerText=localStorage.user+"的购物篮";
+            var items;
+            var page=0;
+            getItems();
+            showItems();
+        </script>
+    </body>
+</html>

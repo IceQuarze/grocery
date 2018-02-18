@@ -1,0 +1,58 @@
+<html>
+    <head>
+        <title>register</title>
+        <style>
+            .reg_form{
+                width: 250px;
+                height: 100px;
+                border: 2px dashed;
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translateX(-50%) translateY(-50%);
+            }
+            .reg_button{
+                position: absolute;
+                left: 50%;
+                bottom: 0px;
+                transform: translateX(-50%) translateY(-50%);
+            }
+        </style>
+        <script src="http://127.0.0.1/md5.js"></script>
+    </head>
+    <body>
+        <div class="reg_form">
+            <form id="reg_form" name="reg_form" style="padding:10px;" method="POST" 
+                    action="http://127.0.0.1/index.php/reg">
+                <label for="user">用户名:</label>
+                <input type="text" name="user" style="position:absolute;right:0px"/><br>
+                <label for="passwd">密码: </label>
+                <input type="text" name="passwd" style="position:absolute;right:0px"/><br>
+                <input type="button" value="注册" id="b_submit" class="reg_button"/>
+            </form>
+        </div>
+        <script>
+            function send2server(args){
+                var reqClass=new XMLHttpRequest();
+                reqClass.open("POST","http://127.0.0.1/index.php/reg",false);
+                reqClass.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                reqClass.send(args);
+                //alert(reqClass.responseText);
+                return JSON.parse(reqClass.responseText);
+            }
+            var b_submit=document.getElementById("b_submit");
+            b_submit.addEventListener("click",function(e){
+                e.preventDefault();
+                var f=document.getElementById("reg_form");
+                var isSuccess=send2server("command=reg&user="+f.user.value+
+                                            "&passwd="+hex_md5(f.passwd.value));
+                if(!isSuccess){
+                    alert("注册失败!");
+                }else{
+                    alert("注册成功!");
+                    location.replace("admin");
+                }
+            })
+        </script>
+    </body>
+</html>

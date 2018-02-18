@@ -1,0 +1,721 @@
+<html>
+    <head>
+        <title>我的杂货店</title>
+        <style>
+            .cls_tb_cls{
+                position: relative;;
+            }
+            .cls_link{
+                font-family: "Consolas";
+                font-size: 20px;
+                border: 1px solid;
+            }
+            .cls_login_box{
+                width: 200px;
+                height: 100px;
+                background-color: white;
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%) translateX(-50%);
+                left: 50%;
+                border: 2px dashed;
+            }
+            .cls_add_item_box{
+                width: 200px;
+                height: 200px;
+                background-color: gainsboro;
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%) translateX(-50%);
+                left: 50%;
+                border: 2px dashed;
+            }
+            .cls_add_item_box_textarea{
+                width: 200px;
+            }
+            .cls_add_item_box_button{
+                left: 60%;
+            }
+            .cls_item_box{
+                width: 100%;
+                height: 100px;
+                border: 2px dashed;
+                color: antiquewhite;
+                position: relative;
+            }
+            .cls_del_item{
+                position: absolute;
+                right: 0%;
+            }
+            .cls_item_name{
+                font-family: "Consolas";
+                font-size: 20px;
+                color: black;
+            }
+            .cls_item_detail{
+                color: black;
+            }
+            .cls_item_price{
+                font-family: "Consolas";
+                font-size: 20px;
+                color: black;
+                position: absolute;
+                bottom: 0px;
+            }
+        </style>
+        <script src="http://127.0.0.1/md5.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <div id="tb_class" name="tb_class" class="cls_tb_cls"></div>
+        <hr>
+        <div id="current_class"></div>
+<!--    <div id="div_add_item_box" class="cls_add_item_box">
+            <form id="add_item_form">
+                <label for="name">Name: </label><input type="text" name="name" />
+                <label for="detail">Detail: </label><br>
+                <textarea id="detail" name="detail" class="cls_add_item_box_textarea"></textarea>
+                <label for="price">Price: </label><input type="text" name="price" />
+                <div class="cls_add_item_box_button"><input type="button" value="Submit" id="add_item_button"/></div>
+            </form>
+        </div>
+        <div id="div_login_box" class="cls_div_login_box">
+            <form id="login_form">
+                <label for="user">user: </label><input type="text" name="user" />
+                <label for="passwd">passwd: </label><input type="text" name="passwd" />
+                <div><input type="button" value="login" id="login_button"/></div>
+            </form>
+        </div>
+    -->
+        <div id="tb_items"></div>
+        <script>
+            function createLoginBox(){
+                var lb1=document.createElement("label");
+                lb1.for="user";
+                lb1.innerText="用户名: ";
+                lb1.id="login_lb1";
+                var user=document.createElement("input");
+                user.type="text";
+                user.name="user";
+                user.id="login_user";
+
+                var lb2=document.createElement("label");
+                lb2.for="passwd";
+                lb2.innerText="密码: ";
+                lb2.id="login_lb2";
+                var passwd=document.createElement("input");
+                passwd.type="password";
+                passwd.name="passwd";
+                passwd.id="login_passwd";
+
+                var b=document.createElement("input");
+                b.type="button";
+                b.value="登录";
+                b.name="b";
+
+                b.addEventListener("click",function(event){
+                    var login_form=document.getElementById("lgoin_form");
+                    var user=document.getElementById("login_user").value;
+                    var passwd=document.getElementById("login_passwd").value;
+                    if(send2server("user="+user+"&passwd="+hex_md5(passwd),"login")){
+                        localStorage.user=user;
+                        localStorage.passwd=hex_md5(passwd);
+                        alert("登录成功");
+                        showClass();
+                    }else{
+                        alert("登录失败!");
+                    }
+                    document.body.removeChild(document.getElementById("div_login_box"));
+                });
+                //    var h=200-name.style.height-lb2.style.height-price.style.height-b.style.height;
+                //    detail.style.height="100px";
+
+                var f=document.createElement("form");
+                f.id="add_item_form";
+                f.appendChild(lb1);
+                f.appendChild(user);
+                f.appendChild(lb2);
+                f.appendChild(passwd);
+                f.appendChild(b);
+
+                var d=document.createElement("div");
+                d.id="div_login_box";
+                d.className="cls_login_box"
+                d.appendChild(f);
+
+                return d;
+            }
+            function send2server(args,c){
+                if(!c){
+                    c="admin";
+                }
+                var reqClass=new XMLHttpRequest();
+                reqClass.open("POST","http://127.0.0.1/index.php/"+c,false);
+                reqClass.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                reqClass.send(args);
+                //alert(reqClass.responseText);
+                return JSON.parse(reqClass.responseText);
+            }
+/*            function getClass(){
+                //alert(reqClass.responseText);
+                return send2server("command=getclass");
+            }
+            function addClass(event){
+                event.preventDefault();
+                var new_cls_name=prompt("Enter name: ","");
+                var isVaild=true;
+                if(new_cls_name==null){
+                    return;
+                }
+                if(new_cls_name==""){
+                    isVaild=false;
+                }else{
+                    var cls=getClass();
+                    for(var i=0;i<cls.length;++i){
+                        if(new_cls_name==cls[i].name){
+                            isVaild=false;
+                            break;
+                        }
+                    }
+                }
+                if(isVaild){
+                    send2server("command=addclass&name="+new_cls_name);
+                    location.reload();
+                }else{
+                    alert("The name is invaild!");
+                }
+            }*/
+            function createAddItemBox(){
+                var lb1=document.createElement("label");
+                lb1.for="name";
+                lb1.innerText="商品名: ";
+                lb1.id="add_item_form_lb1";
+                var name=document.createElement("input");
+                name.type="text";
+                name.name="name";
+
+                var lb2=document.createElement("label");
+                lb2.for="detail";
+                lb2.innerText="详情: ";
+                lb2.id="add_item_form_lb2";
+                var detail=document.createElement("textarea");
+                detail.name="detail";
+                detail.className="cls_add_item_box_textarea";
+
+                var lb3=document.createElement("label");
+                lb3.for="price";
+                lb3.innerText="价格: ";
+                lb3.id="add_item_form_lb3";
+                var price=document.createElement("input");
+                price.type="text";
+                price.name="price";
+
+                var b=document.createElement("input");
+                b.type="button";
+                b.value="提交";
+                b.name="b";
+
+                b.addEventListener("click",function(event){
+                    var add_item_form=document.getElementById("add_item_form");
+                    addItem(add_item_form.name.value,add_item_form.detail.value,add_item_form.price.value);
+                    document.body.removeChild(document.getElementById("div_add_item_box"));
+                    getItems();
+                    showItems();
+                });
+                var h=200-name.style.height-lb2.style.height-price.style.height-b.style.height;
+                detail.style.height="100px";
+
+                var f=document.createElement("form");
+                f.id="add_item_form";
+                f.appendChild(lb1);
+                f.appendChild(name);
+                f.appendChild(lb2);
+                f.appendChild(detail);
+                f.appendChild(lb3);
+                f.appendChild(price);
+                f.appendChild(b);
+
+                var d=document.createElement("div");
+                d.id="div_add_item_box";
+                d.className="cls_add_item_box"
+                d.appendChild(f);
+
+                return d;
+            }
+            function getClass(){
+                //alert(reqClass.responseText);
+                return send2server("command=getclass");
+            }
+            function addClass(event){
+                event.preventDefault();
+                var new_cls_name=prompt("新的分类名字: ","");
+                var isVaild=true;
+                if(new_cls_name==null){
+                    return;
+                }
+                if(new_cls_name==""){
+                    isVaild=false;
+                }else{
+                    var cls=getClass();
+                    for(var i=0;i<cls.length;++i){
+                        if(new_cls_name==cls[i].name){
+                            isVaild=false;
+                            break;
+                        }
+                    }
+                }
+                if(isVaild){
+                    send2server("command=addclass&name="+new_cls_name);
+                    location.reload();
+                }else{
+                    alert("用户名无效!");
+                }
+            }
+            function createModItemBox(){
+                var lb1=document.createElement("label");
+                lb1.for="name";
+                lb1.innerText="商品名: ";
+                lb1.id="mod_item_form_lb1";
+                var name=document.createElement("input");
+                name.type="text";
+                name.name="name";
+
+                var lb2=document.createElement("label");
+                lb2.for="detail";
+                lb2.innerText="详情: ";
+                lb2.id="mod_item_form_lb2";
+                var detail=document.createElement("textarea");
+                detail.name="detail";
+                detail.className="cls_add_item_box_textarea";
+
+                var lb3=document.createElement("label");
+                lb3.for="price";
+                lb3.innerText="价格: ";
+                lb3.id="mod_item_form_lb3";
+                var price=document.createElement("input");
+                price.type="text";
+                price.name="price";
+
+                var b=document.createElement("input");
+                b.type="button";
+                b.value="提交";
+                b.name="b";
+
+                var h=200-name.style.height-lb2.style.height-price.style.height-b.style.height;
+                detail.style.height="100px";
+
+                var f=document.createElement("form");
+                f.id="mod_item_form";
+                f.appendChild(lb1);
+                f.appendChild(name);
+                f.appendChild(lb2);
+                f.appendChild(detail);
+                f.appendChild(lb3);
+                f.appendChild(price);
+                f.appendChild(b);
+
+                var d=document.createElement("div");
+                d.id="div_mod_item_box";
+                d.className="cls_add_item_box"
+                d.appendChild(f);
+
+                return d;
+            }
+            /*
+            function getClass(){
+                //alert(reqClass.responseText);
+                return send2server("command=getclass");
+            }
+            function addClass(event){
+                event.preventDefault();
+                var new_cls_name=prompt("Enter name: ","");
+                var isVaild=true;
+                if(new_cls_name==null){
+                    return;
+                }
+                if(new_cls_name==""){
+                    isVaild=false;
+                }else{
+                    var cls=getClass();
+                    for(var i=0;i<cls.length;++i){
+                        if(new_cls_name==cls[i].name){
+                            isVaild=false;
+                            break;
+                        }
+                    }
+                }
+                if(isVaild){
+                    send2server("command=addclass&name="+new_cls_name);
+                    location.reload();
+                }else{
+                    alert("The name is invaild!");
+                }
+            }
+            */
+            function setCurrentClassName(name){
+                var current_cls=document.getElementById("current_class");
+                while(current_cls.firstChild){
+                    current_cls.removeChild(current_cls.firstChild);
+                }
+                var del_cls_link=document.createElement("a");
+                del_cls_link.innerText="删除这个分类";
+                del_cls_link.href=" ";
+                del_cls_link.addEventListener("click",function(event){
+                    event.preventDefault();
+                    send2server("command=delclass&name="+document.getElementById("current_class_name").innerText);
+                    location.reload();
+                });
+                var cls_name=document.createElement("span");
+                cls_name.innerText=name;
+                cls_name.className="cls_link";
+                cls_name.id="current_class_name";
+                current_cls.appendChild(cls_name);
+                current_cls.appendChild(document.createTextNode(" "));
+                current_cls.appendChild(del_cls_link);
+
+                current_cls.appendChild(document.createTextNode(" "));
+                var add_item_link=document.createElement("a");
+                add_item_link.innerText="添加商品";
+                add_item_link.href=" ";
+                add_item_link.addEventListener("click",function(event){
+                    event.preventDefault();
+                //    document.getElementById("div_add_item_box").style.display="";
+                    document.body.appendChild(createAddItemBox());
+                    var f=document.getElementById("add_item_form");
+                    var name=f.name;
+                    var lb1=document.getElementById("add_item_form_lb1");
+                    var lb2=document.getElementById("add_item_form_lb2");
+                    var lb3=document.getElementById("add_item_form_lb3");
+                    var price=f.price;
+                    var b=f.b;
+                    f.detail.style.height=200-name.offsetHeight-lb2.offsetHeight-
+                                price.offsetHeight-b.offsetHeight;
+                    name.style.width=200-lb1.offsetWidth-5;
+                    price.style.width=200-lb3.offsetWidth-5;
+                });
+                current_cls.appendChild(add_item_link);
+
+                var search=document.createElement("input");
+                search.type="button";
+                search.style.position="absolute";
+                search.style.right="0px";
+                search.value="搜索商品";
+                search.addEventListener("click",function(e){
+                    var name=prompt("要查找的商品名: ","");
+                    items=send2server("command=search&class="+getCurrentClassName()+
+                                        "&name="+name);
+                    showItems();
+                });
+                current_cls.appendChild(search);
+            }
+            function getCurrentClassName(){
+                var current_class_name=document.getElementById("current_class_name");
+                return current_class_name.innerText;
+            }
+            function showItems(){
+                var tb_items=document.getElementById("tb_items");
+                while(tb_items.firstChild){
+                    tb_items.removeChild(tb_items.firstChild);
+                }
+                for(var i=0;i<5;++i){
+                    if(page*5+i>items.length-1){
+                        break;
+                    }
+                    var item=document.createElement("div");
+                    var item_id=document.createElement("span");
+                    var item_name=document.createElement("span");
+                    var item_detail=document.createElement("span");
+                    var item_price=document.createElement("span");
+                    //alert(items.length-1);
+                //    item_name.appendChild(document.createTextNode(items[page*5+i].name));
+                //    item_detail.appendChild(document.createTextNode(items[page*5+i].detail));
+                //    item_price.appendChild(document.createTextNode(items[page*5+i].price));
+                    item_name.innerText=items[page*5+i].name;
+                    item_detail.innerText=items[page*5+i].detail;
+                    item_price.innerText=items[page*5+i].price+"￥";
+                    item_name.className="cls_item_name";
+                    item_detail.className="cls_item_detail";
+                    item_price.className="cls_item_price";
+                    item_id.value=items[page*5+i].id;
+                    item_id.name="id"
+                    item_name.name="name";
+                    item_detail.name="detail";
+                    item_price.name="price";
+
+                    var d_op=document.createElement("span");
+                    var del_item=document.createElement("a");
+                    del_item.href=" ";
+                    del_item.innerText="删除商品";
+                    del_item.addEventListener("click",function(e){
+                        e.preventDefault();
+                        var p=e.target.parentNode;
+                        p=p.parentNode;
+                        //alert(p.firstChild.value);
+                        //alert(getCurrentClassName());
+                        send2server("command=delitem&class="+getCurrentClassName()+
+                                    "&id="+p.firstChild.value);
+                        page=0;
+                        getItems();
+                        showItems();
+                    });
+
+                    var mod_item=document.createElement("a");
+                    mod_item.href=" ";
+                    mod_item.innerText="编辑商品";
+                    mod_item.addEventListener("click",function(e){
+                        e.preventDefault();
+                        var pnode=e.target.parentNode;
+                        pnode=pnode.parentNode;
+
+                        document.body.appendChild(createModItemBox());
+                        var f=document.getElementById("mod_item_form");
+                        var name=f.name;
+                        var lb1=document.getElementById("mod_item_form_lb1");
+                        var lb2=document.getElementById("mod_item_form_lb2");
+                        var lb3=document.getElementById("mod_item_form_lb3");
+                        var price=f.price;
+                        var b=f.b;
+                        f.detail.style.height=200-name.offsetHeight-lb2.offsetHeight-
+                                price.offsetHeight-b.offsetHeight;
+                        name.style.width=200-lb1.offsetWidth-5;
+                        price.style.width=200-lb3.offsetWidth-5;
+
+                        var id,prename,predetail,preprice;
+                        var it=pnode.firstChild;
+                        while(it.nextSibling){
+                        //    alert(typeof it);
+                            if(it.name=="id"){
+                                id=it.value;
+                            }else if(it.name=="name"){
+                                prename=it.innerText;
+                            }else if(it.name=="detail"){
+                                predetail=it.innerText;
+                            }else if(it.name=="price"){
+                                preprice=it.innerText.substr(0,it.innerText.length-1);
+                            }
+                            it=it.nextSibling;
+                        }
+                        mod_id=id;
+                        name.value=prename;
+                        f.detail.value=predetail;
+                        price.value=preprice;
+
+                        b.addEventListener("click",function(e){
+                            var id,name,detail,price;
+                            var it=document.getElementById("mod_item_form").firstChild;
+                            while(it.nextSibling){
+                            //    alert(typeof it);
+                                if(it.name=="name"){
+                                    name=it.value;
+                                }else if(it.name=="detail"){
+                                    detail=it.value;
+                                }else if(it.name=="price"){
+                                    price=it.value;
+                                }
+                                it=it.nextSibling;
+                            }
+                            //alert(id);
+                            send2server("command=moditem&class="+getCurrentClassName()+
+                                        "&id="+mod_id+"&name="+name+"&detail="+detail+"&price="+price);
+                            document.body.removeChild(document.getElementById("div_mod_item_box"));
+                            getItems();
+                            showItems();
+                        });
+                    });
+                    d_op.appendChild(del_item);
+                    d_op.appendChild(document.createTextNode(" "));
+                    d_op.appendChild(mod_item);
+                    d_op.className="cls_del_item";
+
+                    item.appendChild(item_id);
+                    item.appendChild(item_name);
+                    item.appendChild(d_op);
+                    item.appendChild(document.createElement("br"));
+                    item.appendChild(item_detail);
+                    item.appendChild(document.createElement("br"));
+                    item.appendChild(item_price);
+
+                    var add_basket=document.createElement("a");
+                    add_basket.innerText="添加到购物篮";
+                    add_basket.href=" ";
+                    add_basket.addEventListener("click",function(e){
+                        e.preventDefault();
+                        if(localStorage.user=="none"){
+                            alert("请登录你的账号!");
+                            return;
+                        }
+                        var pnode=e.target.parentNode;
+                    //    alert(pnode);
+                        var id,name,detail,price;
+                        var it=pnode.firstChild;
+                        while(it.nextSibling){
+                        //    alert(typeof it);
+                            if(it.name=="id"){
+                                id=it.value;
+                            }else if(it.name=="name"){
+                                name=it.innerText;
+                            }else if(it.name=="detail"){
+                                detail=it.innerText;
+                            }else if(it.name=="price"){
+                                price=it.innerText;
+                            }
+                            it=it.nextSibling;
+                        }
+                        //alert(typeof name);
+                        //alert(typeof detail);
+                        //alert(typeof price);
+                        if(send2server("command=additem&user="+localStorage.user+"&passwd="
+                                        +localStorage.passwd+"&class="+getCurrentClassName()
+                                        +"&id="+id,"basket")){
+                            alert("添加成功");
+                        }else{
+                            alert("添加失败!");
+                        }
+                    });
+                    add_basket.style.position="absolute";
+                    add_basket.style.right="0px";
+                    add_basket.style.bottom="0px";
+                    item.appendChild(add_basket)                    ;
+
+                    item.className="cls_item_box";
+                    tb_items.appendChild(item);
+                }
+                if(page!=0){
+                    var prepage=document.createElement("input");
+                    prepage.type="button";
+                    prepage.value="上一页";
+                    prepage.addEventListener("click",function(){
+                        --page;
+                        var tb_items=document.getElementById("tb_items");
+                        while(tb_items.firstChild){
+                            tb_items.removeChild(tb_items.firstChild);
+                        }
+                        showItems();
+                    });
+                    tb_items.appendChild(prepage);
+                }
+                if((page+1)*5<=items.length-1){
+                    var nextpage=document.createElement("input");
+                    nextpage.type="button";
+                    nextpage.value="下一页";
+                    nextpage.addEventListener("click",function(){
+                        ++page;
+                        showItems();
+                    });
+                    tb_items.appendChild(nextpage);
+                }
+            }
+            function getItems(){
+                items=send2server("command=getitems&class="+getCurrentClassName());
+            }
+            function getItemSize(){
+                return parseInt(send2server("command=getitemsize&class="+getCurrentClassName()));
+            }
+            function addItem(name,detail,price){
+                send2server("command=additem&class="+getCurrentClassName()+"&name="+name+
+                            "&detail="+detail+"&price="+price);
+            }
+            function showClass(){
+                cls=getClass();
+                var tb_class=document.getElementById("tb_class");
+                while(tb_class.firstChild){
+                    tb_class.removeChild(tb_class.firstChild);
+                }
+                var lb=document.createElement("span");
+                lb.style.backgroundColor="antiquewhite";
+                lb.innerText="商品分类";
+                tb_class.appendChild(lb);
+                for(var i=0;i<cls.length;++i){
+                    var new_cls=document.createElement("input");
+                    new_cls.type="button";
+                    new_cls.value=cls[i].name;
+                    new_cls.className="cls_link";
+                    new_cls.addEventListener("click",function(e){
+                        setCurrentClassName(e.target.value);
+                        page=0;
+                        getItems();
+                        showItems();
+                    });
+                //    var s=document.createElement("span");
+                //    s.className="cls_link";
+                //    s.appendChild(new_cls);
+                    tb_class.appendChild(new_cls);
+                }
+                var add_cls_link=document.createElement("a");
+                add_cls_link.innerText="添加新的分类";
+                add_cls_link.href=" ";
+                add_cls_link.addEventListener("click",addClass);
+                tb_class.appendChild(add_cls_link);
+
+                var userbar=document.createElement("span");
+                if(localStorage.user=="none"||localStorage.user==undefined){
+                    var login=document.createElement("a");
+                    login.innerText="登录";
+                    login.href=" ";
+                    login.addEventListener("click",function(e){
+                        e.preventDefault();
+                        var login_box=createLoginBox();
+                        document.body.appendChild(login_box);
+                        var user=document.getElementById("login_user");
+                        var passwd=document.getElementById("login_passwd")
+                        var lb1=document.getElementById("login_lb1");
+                        var lb2=document.getElementById("login_lb2");
+                        passwd.style.width=195-lb2.offsetWidth;
+                        user.style.width=195-lb1.offsetWidth;
+                    })
+
+                    var reg=document.createElement("a");
+                    reg.innerText="注册";
+                    reg.href="http://127.0.0.1/index.php/reg";
+
+                    userbar.appendChild(login);
+                    userbar.appendChild(document.createTextNode(" "));
+                    userbar.appendChild(reg);
+                }else{
+                    var basket=document.createElement("a");
+                    basket.innerText="我的购物篮";
+                    basket.href="http://127.0.0.1/index.php/basket";
+                /*    basket.addEventListener("click",function(e){
+                        e.preventDefault();
+                        send2server("command=showbasket&user="+localStorage.user+
+                                        "&passwd="+localStorage.passwd);
+                    })
+                */
+                    var logout=document.createElement("a");
+                    logout.innerText="退出";
+                    logout.href=" ";
+                    logout.addEventListener("click",function(e){
+                        e.preventDefault();
+                        localStorage.user="none";
+                        localStorage.passwd="none";
+                        showClass();
+                    })
+
+                    userbar.appendChild(document.createTextNode("欢迎,"+localStorage.user+" "));
+                    userbar.appendChild(basket);
+                    userbar.appendChild(document.createTextNode(" "));
+                    userbar.appendChild(logout);
+                }
+                userbar.style.position="absolute";
+                userbar.style.right="0px";
+                tb_class.appendChild(userbar);
+            }
+            //*********************************************************************
+            var cls;
+            var page=0;
+            var item_size;
+            var items;
+            var mod_id;
+            //document.getElementById("div_add_item_box").style.display="none";
+            
+            //tb_class.appendChild(document.createTextNode("Classes: "));
+            showClass();
+            if(cls.length){
+                var current_class_name=cls[0].name;
+                setCurrentClassName(current_class_name);
+                getItems();
+            //    alert(items[0]);
+                showItems();
+            }
+        </script>
+    </body>
+</html>
