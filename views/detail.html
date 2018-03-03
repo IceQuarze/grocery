@@ -1,0 +1,45 @@
+<html>
+    <head>
+        <title>商品详情</title>
+        <style>
+            #div_item_detail{
+                border: 2px dashed;
+                border-color: antiquewhite;
+                padding: 10px;
+            }
+            #div_item_price{
+                position: absolute;
+                right: 0px;
+                padding: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>商品详情页</h1>
+        商品名称：<span id="item_name" style="font-size:20pt"></span>
+        <hr>
+        <div id="div_item_detail">商品介绍：<span id="item_detail"></span><br></div>
+        <div id="div_item_price">商品价格：<span id="item_price"></span></div>
+        <script>
+            function send2server(args,c){
+                if(!c){
+                    c="admin";
+                }
+                var reqClass=new XMLHttpRequest();
+                reqClass.open("POST","http://127.0.0.1/index.php/"+c,false);
+                reqClass.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                reqClass.send(args);
+                //alert(reqClass.responseText);
+                return JSON.parse(reqClass.responseText);
+            }
+            var item_id=document.cookie;
+            var item=send2server("command=showdetail&id="+item_id);
+            var item_name=document.getElementById("item_name");
+            var item_detail=document.getElementById("item_detail");
+            var item_price=document.getElementById("item_price");
+            item_name.innerText=item.name;
+            item_detail.innerText=item.detail;
+            item_price.innerText=item.price+"￥";
+        </script>
+    </body>
+</html>
