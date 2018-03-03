@@ -35,6 +35,9 @@
                     $pdo->exec("insert into ".$class."(id,name,detail,price)values('"
                                 .md5((string)(time()).$name)."','".$name.
                                 "','".$detail."','".$price."')");
+                    $pdo->exec("insert into all_items(id,name,detail,price)values('"
+                                .md5((string)(time()).$name)."','".$name.
+                                "','".$detail."','".$price."')");
                     echo "0";
                 }else if($command=="moditem"){
                     $class=$_POST["class"];
@@ -45,6 +48,10 @@
                     $pdo->exec("update ".$class." set name='".$name."' where id='".$id."'");
                     $pdo->exec("update ".$class." set detail='".$detail."' where id='".$id."'");
                     $pdo->exec("update ".$class." set price='".$price."' where id='".$id."'");
+
+                    $pdo->exec("update all_items set name='".$name."' where id='".$id."'");
+                    $pdo->exec("update all_items set detail='".$detail."' where id='".$id."'");
+                    $pdo->exec("update all_items set price='".$price."' where id='".$id."'");
 
                     echo "1";
 
@@ -61,14 +68,22 @@
                     $class=$_POST["class"];
                     $id=$_POST["id"];
                     $pdo->exec("delete from ".$class." where id='".$id."'");
+                    $pdo->exec("delete from all_items where id='".$id."'");
                     echo "1";
                 }else if($command=="search"){
                     $class=$_POST["class"];
                     $name=$_POST["name"];
                     $data=$pdo->query("select * from ".$class." where name='".$name."'")->fetchall();
                     echo json_encode($data);
+                }else if($command=="showdetail"){
+                    $id=$_POST["id"];
+                    $item=$pdo->query("select * from all_items where id='".$id."'")->fetch();
+                    echo json_encode($item);
                 }
             }
+        }
+        public function detail(){
+            $this->load->view("detail.html");
         }
     }
 ?>

@@ -50,7 +50,8 @@
             .cls_item_name{
                 font-family: "Consolas";
                 font-size: 20px;
-                color: black;
+                color: blue;
+                text-decoration: underline;
             }
             .cls_item_detail{
                 color: black;
@@ -100,7 +101,7 @@
 
                 var lb2=document.createElement("label");
                 lb2.for="passwd";
-                lb2.innerText="密码: ";
+                lb2.innerText="密码:     ";
                 lb2.id="login_lb2";
                 var passwd=document.createElement("input");
                 passwd.type="password";
@@ -264,7 +265,8 @@
                     }
                 }
                 if(isVaild){
-                    send2server("command=addclass&name="+new_cls_name);
+                    send2server("command=addclass&name="+new_cls_name+
+                                    "&class="+getCurrentClassName());
                     location.reload();
                 }else{
                     alert("用户名无效!");
@@ -411,6 +413,20 @@
                 var current_class_name=document.getElementById("current_class_name");
                 return current_class_name.innerText;
             }
+            function strlen(str){
+                var len = 0;
+                for (var i=0; i<str.length; i++) { 
+                    var c = str.charCodeAt(i); 
+                    //单字节加1 
+                    if ((c >= 0x0001 && c <= 0x007e) || (0xff60<=c && c<=0xff9f)) { 
+                        len++; 
+                    } 
+                    else { 
+                        len+=2; 
+                    } 
+                } 
+            return len;
+            }
             function showItems(){
                 var tb_items=document.getElementById("tb_items");
                 while(tb_items.firstChild){
@@ -430,7 +446,10 @@
                 //    item_detail.appendChild(document.createTextNode(items[page*5+i].detail));
                 //    item_price.appendChild(document.createTextNode(items[page*5+i].price));
                     item_name.innerText=items[page*5+i].name;
-                    item_detail.innerText=items[page*5+i].detail;
+                    item_detail.innerText=items[page*5+i].detail.slice(0,70);
+                    if(strlen(items[page*5+i].detail)>69){
+                        item_detail.innerText+="...";
+                    }
                     item_price.innerText=items[page*5+i].price+"￥";
                     item_name.className="cls_item_name";
                     item_detail.className="cls_item_detail";
@@ -440,6 +459,15 @@
                     item_name.name="name";
                     item_detail.name="detail";
                     item_price.name="price";
+
+                    item_detail.id="item_detail";
+                    item_name.item_id=item_id.value;
+                    item_name.addEventListener("click",function(e){
+                        var item_name=e.target;
+                        //alert(item.item_id);
+                        document.cookie=item_name.item_id;
+                        window.open("http://127.0.0.1/index.php/admin/detail");
+                    });
 
                     var d_op=document.createElement("span");
                     var del_item=document.createElement("a");
@@ -577,6 +605,7 @@
                     item.appendChild(add_basket)                    ;
 
                     item.className="cls_item_box";
+                    item.index=i;
                     tb_items.appendChild(item);
                 }
                 if(page!=0){
@@ -659,7 +688,9 @@
                         var passwd=document.getElementById("login_passwd")
                         var lb1=document.getElementById("login_lb1");
                         var lb2=document.getElementById("login_lb2");
-                        passwd.style.width=195-lb2.offsetWidth;
+                        //alert(lb2.offsetWidth);
+                        passwd.style.width=195-lb1.offsetWidth;
+                        //passwd.style.width="200px";
                         user.style.width=195-lb1.offsetWidth;
                     })
 
