@@ -56,6 +56,20 @@
                 items=send2server("command=getitems&user="+localStorage.user+
                                     "&passwd="+localStorage.passwd,"basket");
             }
+            function strlen(str){
+                var len = 0;
+                for (var i=0; i<str.length; i++) { 
+                    var c = str.charCodeAt(i); 
+                    //单字节加1 
+                    if ((c >= 0x0001 && c <= 0x007e) || (0xff60<=c && c<=0xff9f)) { 
+                        len++; 
+                    } 
+                    else { 
+                        len+=2; 
+                    } 
+                } 
+                return len;
+            }
             function showItems(){
                 var tb_items=document.getElementById("tb_items");
                 while(tb_items.firstChild){
@@ -75,7 +89,10 @@
                 //    item_detail.appendChild(document.createTextNode(items[page*5+i].detail));
                 //    item_price.appendChild(document.createTextNode(items[page*5+i].price));
                     item_name.innerText=items[page*5+i].name;
-                    item_detail.innerText=items[page*5+i].detail;
+                    item_detail.innerText=items[page*5+i].detail.slice(0,70);
+                    if(strlen(items[page*5+i].detail)>69){
+                        item_detail.innerText+="...";
+                    }
                     item_price.innerText=items[page*5+i].price+"￥";
                     item_name.className="cls_item_name";
                     item_detail.className="cls_item_detail";
